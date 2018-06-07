@@ -1,0 +1,14 @@
+mqtt:
+  broker-url: tcp://localhost:1883
+  
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL5Dialect
+  datasource:
+    url: jdbc:mysql://localhost:3306/smartliving
+    username: smartliving
+    password: smartliving
