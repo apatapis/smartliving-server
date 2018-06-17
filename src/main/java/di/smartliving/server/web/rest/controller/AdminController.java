@@ -1,7 +1,11 @@
 package di.smartliving.server.web.rest.controller;
 
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,10 +31,25 @@ public class AdminController {
 		profileService.add(profileDTO);
 	}
 	
-	@GetMapping(path = "/profile/{id}")
+	@GetMapping(path = "/profile")
 	@ResponseStatus(HttpStatus.OK)
-	public ProfileDTO getProfile(@PathVariable Long id) {
-		return profileService.getById(id);
+	public List<ProfileDTO> getProfiles() {
+		return profileService.getAll();
+	}
+	
+	@GetMapping(path = "/profile/{id}")
+	public ResponseEntity<ProfileDTO> getProfile(@PathVariable Long id) {
+		Optional<ProfileDTO> profileDTO = profileService.getById(id);
+		if (profileDTO.isPresent()) {
+			return new ResponseEntity<>(profileDTO.get(), HttpStatus.OK);
+		}
+		return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+	}
+	
+	@PostMapping(path = "/profile/{id}/load")
+	@ResponseStatus(HttpStatus.OK)
+	public void loadProfile(@PathVariable Long id) {
+		profileService.loadProfile(id);
 	}
 
 }
