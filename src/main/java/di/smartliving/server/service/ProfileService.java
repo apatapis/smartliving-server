@@ -16,9 +16,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import di.smartliving.server.domain.Profile;
 import di.smartliving.server.domain.repository.ProfileRepository;
 import di.smartliving.server.dto.ProfileDTO;
-import di.smartliving.server.global.SubscriberHandler;
+import di.smartliving.server.global.StateManager;
 import di.smartliving.server.properties.MqttProperties;
-import di.smartliving.server.web.mqtt.client.MqttSubscriber;
+import di.smartliving.server.web.mqtt.client.MqttSubscriberFactory;
 
 @Service
 public class ProfileService {
@@ -27,7 +27,10 @@ public class ProfileService {
 	private ProfileRepository profileRepository;
 	
 	@Autowired
-	private SubscriberHandler subscriberHandler;
+	private MqttSubscriberFactory mqttSubscriberFactory;
+	
+	@Autowired
+	private StateManager stateManager;
 	
 	@Autowired
 	private MqttProperties mqttProperties;
@@ -58,14 +61,15 @@ public class ProfileService {
 		if (!profileDTO.isPresent()) {
 			System.out.println("Profile not found. Aborting operation.");
 		}
-		subscriberHandler.cleanUp();
-		subscriberHandler
-				.addAll(profileDTO.get().getShelves()
+		stateManager.setActiveProfile(profileDTO.get());
+		stateManager.clearSubscribers();
+		stateManager
+				.addSubscribers(profileDTO.get().getShelves()
 						.stream()
 						.flatMap(Collection::stream)
 						.collect(Collectors.toMap(space -> space.getTopic(),
-								space -> new MqttSubscriber(mqttProperties.getBrokerUrl())
+								space -> mqttSubscriberFactory.create(mqttProperties.getBrokerUrl())
 				)));
-		subscriberHandler.startAll();
+		stateManager.startSubscribers();
 	}
 }

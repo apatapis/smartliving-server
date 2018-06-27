@@ -3,13 +3,23 @@ package di.smartliving.server.global;
 import java.util.HashMap;
 import java.util.Map;
 
+import di.smartliving.server.dto.ProfileDTO;
 import di.smartliving.server.web.mqtt.client.MqttSubscriber;
 
-public class SubscriberHandler {
+public class StateManager {
 
+	private ProfileDTO activeProfile;
 	private Map<String, MqttSubscriber> subscribers = new HashMap<>();
 
-	public synchronized void cleanUp() {
+	public ProfileDTO getActiveProfile() {
+		return activeProfile;
+	}
+
+	public void setActiveProfile(ProfileDTO activeProfile) {
+		this.activeProfile = activeProfile;
+	}
+
+	public void clearSubscribers() {
 		System.out.println("Cleaning up subscribers...");
 		for (MqttSubscriber subscriber : subscribers.values()) {
 			subscriber.stop();
@@ -17,15 +27,15 @@ public class SubscriberHandler {
 		subscribers.clear();
 	}
 
-	public synchronized void add(String topic, MqttSubscriber subscriber) {
+	public void addSubscriber(String topic, MqttSubscriber subscriber) {
 		subscribers.put(topic, subscriber);
 	}
 
-	public synchronized void addAll(Map<String, MqttSubscriber> subscribers) {
+	public void addSubscribers(Map<String, MqttSubscriber> subscribers) {
 		this.subscribers.putAll(subscribers);
 	}
 
-	public synchronized void startAll() {
+	public void startSubscribers() {
 		System.out.println("Starting all subscribers...");
 		subscribers.entrySet().stream().forEach(entry -> {
 			entry.getValue().start(entry.getKey());
