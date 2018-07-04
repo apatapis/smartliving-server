@@ -3,6 +3,8 @@ package di.smartliving.server.dto;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
+import di.smartliving.server.web.rest.resource.UpdateSpaceDetailsRequest;
+
 public class Space implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -57,6 +59,24 @@ public class Space implements Serializable {
 	public String toString() {
 		return "Space [topic=" + topic + ", product=" + product + ", tareWeight=" + tareWeight + ", weightUpperBound="
 				+ weightUpperBound + ", weightLowerBound=" + weightLowerBound + "]";
+	}
+
+	public void copy(Space space) {
+		setTopic(space.getTopic());
+		setProduct(space.getProduct());
+		setTareWeight(space.getTareWeight());
+		setWeightLowerBound(space.getWeightLowerBound());
+		setWeightUpperBound(space.getWeightUpperBound());
+	}
+
+	public static Space from(String topic, UpdateSpaceDetailsRequest updateSpaceDetailsRequest) {
+		Space space = new Space();
+		space.setTopic(topic);
+		space.setProduct(updateSpaceDetailsRequest.getProduct());
+		space.setTareWeight(updateSpaceDetailsRequest.getTareWeight());
+		space.setWeightLowerBound(updateSpaceDetailsRequest.getWeightLowerBound());
+		space.setWeightUpperBound(updateSpaceDetailsRequest.getWeightUpperBound());
+		return space;
 	}
 
 }

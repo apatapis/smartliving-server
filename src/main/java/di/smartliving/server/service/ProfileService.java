@@ -16,6 +16,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import di.smartliving.server.domain.Profile;
 import di.smartliving.server.domain.repository.ProfileRepository;
 import di.smartliving.server.dto.ProfileDTO;
+import di.smartliving.server.dto.Space;
 import di.smartliving.server.global.StateManager;
 import di.smartliving.server.properties.MqttProperties;
 import di.smartliving.server.web.mqtt.client.MqttSubscriberFactory;
@@ -54,6 +55,25 @@ public class ProfileService {
 			e.printStackTrace();
 		}
 		profileRepository.save(profile);
+	}
+	
+	public Optional<ProfileDTO> update(Long id, Space space) {
+		Profile profile = profileRepository.findOne(id);
+		if (profile == null) {
+			return Optional.empty();
+		}
+
+		ProfileDTO profileDTO = ProfileDTO.from(profile);
+		profileDTO.getSpaceByTopic(space.getTopic()).copy(space);
+
+		try {
+			profile.setConfiguration(new ObjectMapper().writeValueAsString(profileDTO.getShelves()));
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+		profileRepository.save(profile);
+
+		return Optional.of(profileDTO);
 	}
 	
 	public synchronized void loadProfile(Long id) {

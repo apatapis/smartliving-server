@@ -14,6 +14,10 @@ public class StateManager {
 	public ProfileDTO getActiveProfile() {
 		return activeProfile;
 	}
+	
+	public boolean isActive(ProfileDTO profileDTO) {
+		return activeProfile != null && activeProfile.getId().equals(profileDTO.getId());
+	}
 
 	public void setActiveProfile(ProfileDTO activeProfile) {
 		this.activeProfile = activeProfile;
