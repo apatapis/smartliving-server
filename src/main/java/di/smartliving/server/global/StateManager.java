@@ -16,7 +16,11 @@ public class StateManager {
 	}
 	
 	public boolean isActive(ProfileDTO profileDTO) {
-		return activeProfile != null && activeProfile.getId().equals(profileDTO.getId());
+		return isActive(profileDTO.getId());
+	}
+
+	public boolean isActive(Long id) {
+		return activeProfile != null && activeProfile.getId().equals(id);
 	}
 
 	public void setActiveProfile(ProfileDTO activeProfile) {

@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import javax.persistence.EntityExistsException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
@@ -20,19 +22,20 @@ import di.smartliving.server.dto.Space;
 import di.smartliving.server.global.StateManager;
 import di.smartliving.server.properties.MqttProperties;
 import di.smartliving.server.web.mqtt.client.MqttSubscriberFactory;
+import di.smartliving.server.web.rest.resource.UpdateProfileRequest;
 
 @Service
 public class ProfileService {
 
 	@Autowired
 	private ProfileRepository profileRepository;
-	
+
 	@Autowired
 	private MqttSubscriberFactory mqttSubscriberFactory;
-	
+
 	@Autowired
 	private StateManager stateManager;
-	
+
 	@Autowired
 	private MqttProperties mqttProperties;
 
@@ -45,8 +48,11 @@ public class ProfileService {
 		return profileRepository.findAll(new Sort(Direction.ASC, "id")).stream()
 				.map(profile -> ProfileDTO.from(profile)).collect(Collectors.toList());
 	}
-	
-	public void add(ProfileDTO profileDTO) {
+
+	public synchronized void add(ProfileDTO profileDTO) {
+		if (profileRepository.existsWithName(profileDTO.getName())) {
+			throw new EntityExistsException();
+		}
 		Profile profile = new Profile();
 		profile.setName(profileDTO.getName());
 		try {
@@ -56,8 +62,8 @@ public class ProfileService {
 		}
 		profileRepository.save(profile);
 	}
-	
-	public Optional<ProfileDTO> update(Long id, Space space) {
+
+	public synchronized Optional<ProfileDTO> updateSpace(Long id, Space space) {
 		Profile profile = profileRepository.findOne(id);
 		if (profile == null) {
 			return Optional.empty();
@@ -75,7 +81,7 @@ public class ProfileService {
 
 		return Optional.of(profileDTO);
 	}
-	
+
 	public synchronized void loadProfile(Long id) {
 		Optional<ProfileDTO> profileDTO = getById(id);
 		if (!profileDTO.isPresent()) {
@@ -83,13 +89,45 @@ public class ProfileService {
 		}
 		stateManager.setActiveProfile(profileDTO.get());
 		stateManager.clearSubscribers();
-		stateManager
-				.addSubscribers(profileDTO.get().getShelves()
-						.stream()
-						.flatMap(Collection::stream)
-						.collect(Collectors.toMap(space -> space.getTopic(),
-								space -> mqttSubscriberFactory.create(mqttProperties.getBrokerUrl())
-				)));
+		stateManager.addSubscribers(profileDTO.get().getShelves().stream().flatMap(Collection::stream)
+				.collect(Collectors.toMap(space -> space.getTopic(),
+						space -> mqttSubscriberFactory.create(mqttProperties.getBrokerUrl()))));
 		stateManager.startSubscribers();
 	}
+
+	public synchronized void updateProfile(Long id, UpdateProfileRequest updateProfileRequest) {
+		if (profileRepository.existsWithName(updateProfileRequest.getName())) {
+			throw new EntityExistsException();
+		}
+
+		Profile profile = profileRepository.findOne(id);
+		if (profile == null) {
+			return;
+		}
+
+		profile.setName(updateProfileRequest.getName());
+
+		profile = profileRepository.save(profile);
+
+		ProfileDTO profileDTO = ProfileDTO.from(profile);
+
+		if (stateManager.isActive(profileDTO)) {
+			stateManager.setActiveProfile(profileDTO);
+		}
+	}
+
+	public synchronized void deleteProfile(Long id) {
+		Profile profile = profileRepository.findOne(id);
+		if (profile == null) {
+			return;
+		}
+
+		profileRepository.delete(id);
+
+		if (stateManager.isActive(id)) {
+			stateManager.clearSubscribers();
+			stateManager.setActiveProfile(null);
+		}
+	}
+
 }

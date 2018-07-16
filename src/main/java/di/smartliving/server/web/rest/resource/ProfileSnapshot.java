@@ -45,6 +45,7 @@ public class ProfileSnapshot implements Serializable {
 
 	public static ProfileSnapshot from(ProfileDTO profileDTO) {
 		ProfileSnapshot profileSnapshot = new ProfileSnapshot();
+		profileSnapshot.setId(profileDTO.getId());
 		profileSnapshot.setName(profileDTO.getName());
 		profileSnapshot.setShelves(profileDTO.getShelves().stream()
 				.map(l -> l.stream().map(space -> SpaceSummary.from(space)).collect(Collectors.toList()))

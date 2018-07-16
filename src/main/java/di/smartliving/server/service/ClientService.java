@@ -47,7 +47,7 @@ public class ClientService {
 	}
 
 	public synchronized void updateSpaceDetails(Long profileId, Space space) {
-		Optional<ProfileDTO> profileDTO = profileService.update(profileId, space);
+		Optional<ProfileDTO> profileDTO = profileService.updateSpace(profileId, space);
 		profileDTO.ifPresent(p -> {
 			if (stateManager.isActive(p)) {
 				stateManager.setActiveProfile(p);
