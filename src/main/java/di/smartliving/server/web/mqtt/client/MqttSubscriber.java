@@ -1,46 +1,64 @@
 package di.smartliving.server.web.mqtt.client;
 
+import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 
 public class MqttSubscriber {
 
-	private MqttClient mqttClient;
+	private static final MqttConnectOptions MQTT_CONNECT_OPTIONS = getMqttConnectOptions();
 
-	public MqttSubscriber(String brokerUrl, SubscriberMqttCallback subscriberMqttCallback) {
-		try {
-			mqttClient = new MqttClient(brokerUrl, MqttClient.generateClientId());
-			mqttClient.setCallback(subscriberMqttCallback);
-		} catch (MqttException e) {
-			e.printStackTrace();
-		}
+	private static MqttConnectOptions getMqttConnectOptions() {
+		MqttConnectOptions mqttConnectOptions = new MqttConnectOptions();
+		mqttConnectOptions.setCleanSession(true);
+		return mqttConnectOptions;
+	}
+
+	private final MqttClient mqttClient;
+	private final String topic;
+
+	public MqttSubscriber(String brokerUrl, String topic, MqttCallback mqttCallback) throws MqttException {
+		this.mqttClient = createMqttClient(brokerUrl, mqttCallback);
+		this.topic = topic;
+	}
+
+	private MqttClient createMqttClient(String brokerUrl, MqttCallback mqttCallback) throws MqttException {
+		MqttClient mqttClient = new MqttClient(brokerUrl, MqttClient.generateClientId());
+		mqttClient.setCallback(mqttCallback);
+		return mqttClient;
 	}
 
 	public String getClientId() {
 		return mqttClient.getClientId();
 	}
 
-	public void start(String topic) {
-		try {
-			MqttConnectOptions opts = new MqttConnectOptions();
-			opts.setCleanSession(true);
-			mqttClient.connect(opts);
-			mqttClient.subscribe(topic);
-		} catch (MqttException e) {
-			e.printStackTrace();
-		}
-		System.out.println("Subscriber " + getClientId() + " is now listening to topic " + topic + ".");
+	public String getTopic() {
+		return topic;
 	}
 
-	public void stop() {
-		try {
-			if (mqttClient.isConnected()) {
-				mqttClient.disconnect();
-			}
-		} catch (MqttException e) {
-			e.printStackTrace();
+	public void start() throws MqttException {
+		if (mqttClient.isConnected()) {
+			return;
 		}
-		System.out.println("Subscriber " + getClientId() + " shut down successfully.");
+		mqttClient.connect(MQTT_CONNECT_OPTIONS);
+		mqttClient.subscribe(topic);
 	}
+
+	public void stop() throws MqttException {
+		if (!mqttClient.isConnected()) {
+			return;
+		}
+		mqttClient.disconnect();
+	}
+
+	public boolean isConnected() {
+		return mqttClient.isConnected();
+	}
+
+	@Override
+	public String toString() {
+		return "MqttSubscriber [clientId=" + getClientId() + ", topic=" + getTopic() + "]";
+	}
+
 }
