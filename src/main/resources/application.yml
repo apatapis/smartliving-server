@@ -1,10 +1,14 @@
 mqtt:
   broker-url: tcp://localhost:1883
   
+smart-living:
+  server:
+    max-storage-units: 10
+    
 spring:
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create-drop
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQL5Dialect
@@ -12,6 +16,6 @@ spring:
     url: jdbc:mysql://localhost:3306/smartliving
     username: smartliving
     password: smartliving
-
+    
 server:
   port: 8090

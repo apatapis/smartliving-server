@@ -9,7 +9,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
@@ -28,8 +27,8 @@ public class StorageUnit {
 	@Column(name = "enabled")
 	private boolean enabled;
 
-	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-	@JoinColumn(name = "storage_unit_id")
+	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "id.storageUnitId")
+	// @JoinColumn(name = "storage_unit_id")
 	private List<Container> containers = new ArrayList<>();
 
 	public Long getId() {

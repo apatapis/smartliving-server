@@ -7,7 +7,9 @@ import java.util.UUID;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import di.smartliving.server.domain.Container;
+import di.smartliving.server.domain.Event;
 import di.smartliving.server.domain.MeasurementUnit;
+import di.smartliving.server.dto.ContainerValueChange;
 import di.smartliving.server.dto.SensorMessage;
 import di.smartliving.server.util.exception.CreateSensorMessageException;
 
@@ -29,14 +31,15 @@ public class DtoMapper {
 		sensorMessage.setContainerId(containerId);
 		sensorMessage.setUnit(sensorMessagePayload.getUnit());
 		sensorMessage.setValue(sensorMessagePayload.getValue());
+		sensorMessage.setTimestamp(timestamp);
 		return sensorMessage;
 	}
 
 	private static Container.ID extractFrom(String mqttTopic) throws Exception {
 		String[] tokens = mqttTopic.split("/");
-		Long storageUnitId = Long.parseLong(tokens[1]);
-		Long containerLevel = Long.parseLong(tokens[3]);
-		Long containerPosition = Long.parseLong(tokens[5]);
+		Long storageUnitId = Long.parseLong(tokens[0].split("_")[1]);
+		Long containerLevel = Long.parseLong(tokens[1].split("_")[1]);
+		Long containerPosition = Long.parseLong(tokens[2].split("_")[1]);
 		return new Container.ID(storageUnitId, containerLevel, containerPosition);
 	}
 
@@ -45,7 +48,7 @@ public class DtoMapper {
 	}
 
 	@SuppressWarnings("unused")
-	private class SensorMessagePayload {
+	private static class SensorMessagePayload {
 
 		private UUID sensorId;
 		private MeasurementUnit unit;
@@ -75,6 +78,13 @@ public class DtoMapper {
 			this.value = value;
 		}
 
+	}
+	
+	public static ContainerValueChange from(Event event) {
+		ContainerValueChange containerValuechange = new ContainerValueChange();
+		containerValuechange.setValue(event.getValue());
+		containerValuechange.setTimestamp(event.getCreatedDate());
+		return containerValuechange;
 	}
 
 }

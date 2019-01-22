@@ -28,12 +28,12 @@ public class SubscriberService {
 	private static Logger LOGGER = LoggerFactory.getLogger(SubscriberService.class);
 
 	@Autowired
-	private ConcurrentHashMap<String, Set<MqttSubscriber>> subscriberMap;
+	private ConcurrentHashMap<Long, Set<MqttSubscriber>> subscriberMap;
 
 	@Autowired
 	private MqttSubscriberFactory subscriberFactory;
 
-	public void createSubscribers(String storageUnitId, Set<String> topics) {
+	public void createSubscribers(Long storageUnitId, Set<String> topics) {
 		if (subscriberMap.containsKey(storageUnitId)) {
 			LOGGER.error("Subscribers for storage unit {} already exist.", storageUnitId);
 			return;
@@ -49,58 +49,46 @@ public class SubscriberService {
 		}
 		subscriberMap.put(storageUnitId, subscribers);
 	}
-	
-	public Set<MqttSubscriber> getSubscribers(String storageUnitId) {
+
+	public Set<MqttSubscriber> getSubscribers(Long storageUnitId) {
 		return subscriberMap.getOrDefault(storageUnitId, Collections.emptySet());
 	}
-	
-	public Map<String, Set<MqttSubscriber>> getSubscriberMap() {
+
+	public Map<Long, Set<MqttSubscriber>> getSubscriberMap() {
 		return subscriberMap;
 	}
 
-	public void deleteSubscribers(String storageUnitId) {
-		Set<MqttSubscriber> subscribers = subscriberMap.get(storageUnitId);
-		if (subscribers == null) {
-			LOGGER.error("Subscribers for storage unit {} not found.", storageUnitId);
-			return;
-		}
-		stopSubscribers(subscribers);
+	public void deleteSubscribers(Long storageUnitId) {
+		stopSubscribers(storageUnitId);
 		subscriberMap.remove(storageUnitId);
 	}
 
-	public void startSubscribers(String storageUnitId) {
-		Set<MqttSubscriber> subscribers = subscriberMap.get(storageUnitId);
-		if (subscribers == null) {
-			LOGGER.error("Subscribers for storage unit {} not found.", storageUnitId);
-			return;
-		}
-		for (MqttSubscriber subscriber : subscribers) {
-			try {
-				subscriber.start();
-			} catch (MqttException e) {
-				LOGGER.error("Failed to start {}. Aborting operation.", subscriber, e);
-				throw new StartSubscriberException();
+	public void startSubscribers(Long storageUnitId) {
+		subscriberMap.computeIfPresent(storageUnitId, (key, subscribers) -> {
+			for (MqttSubscriber subscriber : subscribers) {
+				try {
+					subscriber.start();
+				} catch (MqttException e) {
+					LOGGER.error("Failed to start {}. Aborting operation.", subscriber, e);
+					throw new StartSubscriberException();
+				}
 			}
-		}
+			return subscribers;
+		});
 	}
 
-	public void stopSubscribers(String storageUnitId) {
-		Set<MqttSubscriber> subscribers = subscriberMap.get(storageUnitId);
-		if (subscribers == null) {
-			LOGGER.error("Subscribers for storage unit {} not found.", storageUnitId);
-			return;
-		}
-		stopSubscribers(subscribers);
+	public void stopSubscribers(Long storageUnitId) {
+		subscriberMap.computeIfPresent(storageUnitId, (key, subscribers) -> {
+			for (MqttSubscriber subscriber : subscribers) {
+				try {
+					subscriber.stop();
+				} catch (MqttException e) {
+					LOGGER.error("Failed to stop {}. Aborting operation.", subscriber, e);
+					throw new StopSubscriberException();
+				}
+			}
+			return subscribers;
+		});
 	}
 
-	private void stopSubscribers(Set<MqttSubscriber> subscribers) {
-		for (MqttSubscriber subscriber : subscribers) {
-			try {
-				subscriber.stop();
-			} catch (MqttException e) {
-				LOGGER.error("Failed to stop {}. Aborting operation.", subscriber, e);
-				throw new StopSubscriberException();
-			}
-		}
-	}
 }

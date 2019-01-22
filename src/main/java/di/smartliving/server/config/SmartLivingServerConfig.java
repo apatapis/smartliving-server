@@ -13,17 +13,18 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import di.smartliving.server.domain.StorageUnit;
 import di.smartliving.server.domain.repository.StorageUnitRepository;
 import di.smartliving.server.properties.MqttProperties;
+import di.smartliving.server.properties.SmartLivingServerProperties;
 import di.smartliving.server.web.mqtt.client.MqttSubscriber;
 
 @Configuration
-@EnableConfigurationProperties(value = MqttProperties.class)
+@EnableConfigurationProperties(value = { MqttProperties.class, SmartLivingServerProperties.class })
 @EntityScan(basePackageClasses = StorageUnit.class)
 @EnableJpaRepositories(basePackageClasses = StorageUnitRepository.class)
 @EnableJpaAuditing
 public class SmartLivingServerConfig {
 
 	@Bean
-	public ConcurrentHashMap<String, Set<MqttSubscriber>> subscriberMap() {
+	public ConcurrentHashMap<Long, Set<MqttSubscriber>> subscriberMap() {
 		return new ConcurrentHashMap<>();
 	}
 
