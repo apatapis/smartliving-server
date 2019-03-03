@@ -1,6 +1,7 @@
 package di.smartliving.server.web.mqtt.client;
 
 import java.time.Instant;
+import java.util.Date;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
@@ -36,6 +37,6 @@ public class MqttSubscriberCallback implements MqttCallback {
 	public void messageArrived(String topic, MqttMessage mqttMessage) throws Exception {
 		String payloadAsString = new String(mqttMessage.getPayload());
 		LOGGER.info("Received message {} for topic {} with payload {}.", mqttMessage.getId(), topic, payloadAsString);
-		sensorService.handleIncomingMessage(topic, payloadAsString, Instant.now());
+		sensorService.handleIncomingMessage(topic, payloadAsString, Date.from(Instant.now()));
 	}
 }

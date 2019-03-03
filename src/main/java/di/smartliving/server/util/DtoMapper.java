@@ -1,7 +1,7 @@
 package di.smartliving.server.util;
 
 import java.math.BigDecimal;
-import java.time.Instant;
+import java.util.Date;
 import java.util.UUID;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,7 +18,7 @@ public class DtoMapper {
 	private DtoMapper() {
 	};
 
-	public static SensorMessage from(String topic, String sensorMessagePayloadAsString, Instant timestamp) {
+	public static SensorMessage from(String topic, String sensorMessagePayloadAsString, Date timestamp) {
 		Container.ID containerId;
 		SensorMessagePayload sensorMessagePayload;
 		try {
@@ -83,7 +83,8 @@ public class DtoMapper {
 	public static ContainerValueChange from(Event event) {
 		ContainerValueChange containerValuechange = new ContainerValueChange();
 		containerValuechange.setValue(event.getValue());
-		containerValuechange.setTimestamp(event.getCreatedDate());
+		containerValuechange.setTimestamp(event.getCreatedDate().toString());
+		containerValuechange.setUnit(MeasurementUnit.KG);
 		return containerValuechange;
 	}
 

@@ -2,7 +2,7 @@ package di.smartliving.server.domain;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.time.Instant;
+import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
@@ -11,6 +11,9 @@ import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.ManyToOne;
+import javax.persistence.MapsId;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
@@ -26,6 +29,10 @@ public class Container {
 
 	@EmbeddedId
 	private ID id;
+
+	@MapsId("storageUnitId")
+	@ManyToOne(fetch = FetchType.LAZY)
+	private StorageUnit storageUnit;
 
 	@Column(name = "name")
 	private String name;
@@ -45,7 +52,7 @@ public class Container {
 
 	@Column(name = "created_date", nullable = false, updatable = false)
 	@CreatedDate
-	private Instant createdDate;
+	private Date createdDate;
 
 	public ID getId() {
 		return id;
@@ -53,6 +60,14 @@ public class Container {
 
 	public void setId(ID id) {
 		this.id = id;
+	}
+
+	public StorageUnit getStorageUnit() {
+		return storageUnit;
+	}
+
+	public void setStorageUnit(StorageUnit storageUnit) {
+		this.storageUnit = storageUnit;
 	}
 
 	public String getName() {
@@ -95,11 +110,11 @@ public class Container {
 		this.thresholdMax = thresholdMax;
 	}
 
-	public Instant getCreatedDate() {
+	public Date getCreatedDate() {
 		return createdDate;
 	}
 
-	public void setCreatedDate(Instant createdDate) {
+	public void setCreatedDate(Date createdDate) {
 		this.createdDate = createdDate;
 	}
 

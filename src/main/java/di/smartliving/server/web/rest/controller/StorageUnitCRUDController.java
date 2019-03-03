@@ -73,7 +73,7 @@ public class StorageUnitCRUDController {
 	public ContainerResource updateContainer(@PathVariable Long storageUnitId, @PathVariable Long level,
 			@PathVariable Long position, @RequestBody ContainerResource containerResource) {
 		return ResourceMapper.from(storageUnitCRUDService
-				.updateContainer(EntityMapper.from(containerResource, position, level, storageUnitId)));
+				.updateContainer(EntityMapper.from(containerResource, position, level, storageUnitCRUDService.getStorageUnit(storageUnitId).get())));
 	}
 
 }

@@ -28,7 +28,6 @@ public class StorageUnit {
 	private boolean enabled;
 
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "id.storageUnitId")
-	// @JoinColumn(name = "storage_unit_id")
 	private List<Container> containers = new ArrayList<>();
 
 	public Long getId() {

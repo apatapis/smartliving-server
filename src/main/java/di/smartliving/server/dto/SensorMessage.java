@@ -1,7 +1,7 @@
 package di.smartliving.server.dto;
 
 import java.math.BigDecimal;
-import java.time.Instant;
+import java.util.Date;
 
 import di.smartliving.server.domain.Container;
 import di.smartliving.server.domain.MeasurementUnit;
@@ -15,7 +15,7 @@ public class SensorMessage {
 	private Container.ID containerId;
 	private MeasurementUnit unit;
 	private BigDecimal value;
-	private Instant timestamp;
+	private Date timestamp;
 
 	public Container.ID getContainerId() {
 		return containerId;
@@ -41,11 +41,11 @@ public class SensorMessage {
 		this.value = value;
 	}
 
-	public Instant getTimestamp() {
+	public Date getTimestamp() {
 		return timestamp;
 	}
 
-	public void setTimestamp(Instant timestamp) {
+	public void setTimestamp(Date timestamp) {
 		this.timestamp = timestamp;
 	}
 

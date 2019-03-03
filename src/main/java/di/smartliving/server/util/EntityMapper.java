@@ -18,9 +18,10 @@ public class EntityMapper {
 	private EntityMapper() {
 	};
 
-	public static Container from(ContainerResource containerResource, Long position, Long level, Long storageUnitId) {
+	public static Container from(ContainerResource containerResource, Long position, Long level, StorageUnit storageUnit) {
 		Container container = new Container();
-		container.setId(new Container.ID(storageUnitId, level, position));
+		container.setId(new Container.ID(storageUnit.getId(), level, position));
+		container.setStorageUnit(storageUnit);
 		container.setName(containerResource.getName());
 		container.setTareWeight(containerResource.getTareWeight());
 		container.setThresholdMax(containerResource.getThresholdMax());
@@ -34,17 +35,17 @@ public class EntityMapper {
 		storageUnit.setId(storageUnitResource.getId());
 		storageUnit.setName(storageUnitResource.getName());
 		storageUnit.setEnabled(storageUnitResource.isEnabled());
-		storageUnit.setContainers(from(storageUnitResource.getContainers(), storageUnitResource.getId()));
+		storageUnit.setContainers(from(storageUnitResource.getContainers(), storageUnit));
 		return storageUnit;
 	}
 	
-	private static List<Container> from(List<List<ContainerResource>> containerResources, Long storageUnitId) {
+	private static List<Container> from(List<List<ContainerResource>> containerResources, StorageUnit storageUnit) {
 		return IntStream.range(0, containerResources.size())
 						.mapToObj(level -> IntStream.range(0, containerResources.get(level).size())
 													.mapToObj(position -> from(containerResources.get(level).get(position),
 																				Long.valueOf(position),
 																				Long.valueOf(level),
-																				storageUnitId)))
+																				storageUnit)))
 						.flatMap(Function.identity())
 						.collect(Collectors.toList());
 	}

@@ -1,7 +1,7 @@
 package di.smartliving.server.domain;
 
 import java.math.BigDecimal;
-import java.time.Instant;
+import java.util.Date;
 
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
@@ -41,7 +41,7 @@ public class Event {
 	private BigDecimal value;
 
 	@Column(name = "created_date", nullable = false, updatable = false)
-	private Instant createdDate;
+	private Date createdDate;
 
 	public Long getId() {
 		return id;
@@ -83,11 +83,11 @@ public class Event {
 		this.value = value;
 	}
 
-	public Instant getCreatedDate() {
+	public Date getCreatedDate() {
 		return createdDate;
 	}
 
-	public void setCreatedDate(Instant createdDate) {
+	public void setCreatedDate(Date createdDate) {
 		this.createdDate = createdDate;
 	}
 

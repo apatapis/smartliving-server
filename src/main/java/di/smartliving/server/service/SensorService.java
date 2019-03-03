@@ -1,6 +1,6 @@
 package di.smartliving.server.service;
 
-import java.time.Instant;
+import java.util.Date;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +26,7 @@ public class SensorService {
 	 * @param sensorMessagePayloadAsString
 	 * @param timestamp
 	 */
-	public void handleIncomingMessage(String topic, String sensorMessagePayloadAsString, Instant timestamp) {
+	public void handleIncomingMessage(String topic, String sensorMessagePayloadAsString, Date timestamp) {
 		SensorMessage sensorMessage;
 		try {
 			sensorMessage = DtoMapper.from(topic, sensorMessagePayloadAsString, timestamp);

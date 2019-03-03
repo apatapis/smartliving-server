@@ -1,7 +1,9 @@
 package di.smartliving.server.web.rest.controller;
 
+import java.math.BigDecimal;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
@@ -23,10 +25,22 @@ public class StorageUnitStatsController {
 	private StorageUnitStatsService storageUnitStatsService;
 
 	@GetMapping(path = "/{storageUnitId}/level/{level}/position/{position}/value-changes")
-	public Page<ContainerValueChange> getContainerValueChanges(@PathVariable Long storageUnitId,
+	public List<ContainerValueChange> getContainerValueChanges(@PathVariable Long storageUnitId,
 			@PathVariable Long level, @PathVariable Long position, @RequestParam int page, @RequestParam int size) {
 		return storageUnitStatsService.getContainerValueChanges(new Container.ID(storageUnitId, level, position),
-				new PageRequest(page, size, new Sort(Direction.DESC, "createdDate")));
+				new PageRequest(page, size, new Sort(Direction.DESC, "createdDate"))).getContent();
+	}
+
+	@GetMapping(path = "/{storageUnitId}/level/{level}/position/{position}/zeros")
+	public List<ContainerValueChange> getContainerZeros(@PathVariable Long storageUnitId, @PathVariable Long level,
+			@PathVariable Long position) {
+		return storageUnitStatsService.getContainerZeros(new Container.ID(storageUnitId, level, position));
+	}
+
+	@GetMapping(path = "/{storageUnitId}/level/{level}/position/{position}/average")
+	public BigDecimal getContainerAverage(@PathVariable Long storageUnitId, @PathVariable Long level,
+			@PathVariable Long position) {
+		return storageUnitStatsService.getContainerAverage(new Container.ID(storageUnitId, level, position));
 	}
 
 }

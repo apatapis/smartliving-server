@@ -1,5 +1,6 @@
 package di.smartliving.server.domain.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -15,5 +16,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
 	public Optional<Event> findTop1ByContainerIdAndTypeOrderByCreatedDateDesc(Container.ID containerId, EventType type);
 
 	public Page<Event> findByContainerIdAndType(Container.ID containerId, EventType type, Pageable pageable);
+
+	public List<Event> findByContainerIdAndType(Container.ID containerId, EventType type);
 
 }

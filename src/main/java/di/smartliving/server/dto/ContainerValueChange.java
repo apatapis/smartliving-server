@@ -1,7 +1,6 @@
 package di.smartliving.server.dto;
 
 import java.math.BigDecimal;
-import java.time.Instant;
 
 import di.smartliving.server.domain.MeasurementUnit;
 
@@ -9,7 +8,7 @@ public class ContainerValueChange {
 
 	private MeasurementUnit unit;
 	private BigDecimal value;
-	private Instant timestamp;
+	private String timestamp;
 
 	public MeasurementUnit getUnit() {
 		return unit;
@@ -27,11 +26,11 @@ public class ContainerValueChange {
 		this.value = value;
 	}
 
-	public Instant getTimestamp() {
+	public String getTimestamp() {
 		return timestamp;
 	}
 
-	public void setTimestamp(Instant timestamp) {
+	public void setTimestamp(String timestamp) {
 		this.timestamp = timestamp;
 	}
 
